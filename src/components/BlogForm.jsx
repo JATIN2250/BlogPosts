@@ -38,8 +38,11 @@ const BlogForm = ({ onBlogAdded, onClose, existingBlog }) => {
     const url = isEditing ? `http://localhost:5000/api/blogs/${existingBlog.id}` : 'http://localhost:5000/api/blogs';
     const method = isEditing ? 'PUT' : 'POST';
 
+    const token = localStorage.getItem('token');
+
     try {
-      const response = await fetch(url, { method, body: formData });
+      const response = await fetch(url, { method,
+        headers:{'x-auth-token':token,}, body: formData });
       if (!response.ok) throw new Error('Something went wrong');
       onBlogAdded();
       onClose();

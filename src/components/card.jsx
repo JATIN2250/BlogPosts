@@ -1,12 +1,30 @@
-// src/components/Card.js (Updated)
+import React, { useState, useEffect, useRef } from 'react';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 
-import React from 'react';
+const Card = ({ blog, onEdit, onDelete, currentUserId, viewMode = 'grid' }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
-const Card = ({ img, title, description, onEdit, onDelete, viewMode = 'grid' }) => {
-  // Conditional classes based on viewMode
+  // This logic closes the dropdown menu if you click anywhere else on the page
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Check if the currently logged-in user is the owner of the post
+  const isOwner = currentUserId === blog.user_id;
+
+  // Conditional classes for grid and list view
   const containerClasses = viewMode === 'grid'
-    ? "bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full"
-    : "bg-white rounded-xl shadow-lg overflow-hidden flex flex-col sm:flex-row w-full";
+    ? "bg-white rounded-xl shadow-lg overflow-hidden flex flex-col h-full relative"
+    : "bg-white rounded-xl shadow-lg overflow-hidden flex flex-col sm:flex-row w-full relative";
   
   const imageClasses = viewMode === 'grid'
     ? "w-full h-56 object-cover"
@@ -18,23 +36,49 @@ const Card = ({ img, title, description, onEdit, onDelete, viewMode = 'grid' }) 
 
   return (
     <div className={containerClasses}>
+      {/* Three-Dot Menu (only visible to the post owner) */}
+      {isOwner && (
+        <div ref={menuRef} className="absolute top-2 right-2 z-20">
+          <button 
+            onClick={() => setMenuOpen(!menuOpen)} 
+            className="p-2 bg-black bg-opacity-40 rounded-full text-white hover:bg-opacity-60 transition"
+            aria-label="Options"
+          >
+            <BsThreeDotsVertical size={16} />
+          </button>
+          
+          {/* Dropdown Menu */}
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-xl py-1">
+              <button 
+                onClick={() => { onEdit(blog); setMenuOpen(false); }} 
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                Edit Post
+              </button>
+              <button 
+                onClick={() => { onDelete(blog.id); setMenuOpen(false); }} 
+                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                Delete Post
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      
       {/* Image */}
-      {img && <img className={imageClasses} src={img} alt={title} />}
+      {blog.image_url && <img className={imageClasses} src={`http://localhost:5000${blog.image_url}`} alt={blog.title} />}
 
       {/* Content */}
       <div className={contentClasses}>
-        <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">{title}</h2>
-        <p className="text-gray-600 flex-grow">{description}</p>
+        <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">{blog.title}</h2>
+        <p className="text-gray-600 flex-grow mb-3">{blog.description}</p>
         
-        {/* Buttons */}
-        <div className="mt-4 flex justify-end gap-2">
-          <button onClick={onEdit} className="px-3 py-1 text-sm font-semibold text-blue-500 border border-blue-500 rounded hover:bg-blue-500 hover:text-white transition">
-            Edit
-          </button>
-          <button onClick={onDelete} className="px-3 py-1 text-sm font-semibold text-red-500 border border-red-500 rounded hover:bg-red-500 hover:text-white transition">
-            Delete
-          </button>
-        </div>
+        {/* Author Name */}
+        <p className="text-sm text-gray-500 mt-auto pt-2 border-t border-gray-100">
+          By: <span className="font-semibold">{blog.username}</span>
+        </p>
       </div>
     </div>
   );
