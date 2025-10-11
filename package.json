@@ -13,6 +13,7 @@
     "@formkit/auto-animate": "^0.9.0",
     "@tailwindcss/vite": "^4.1.14",
     "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
     "lucide-react": "^0.545.0",
     "multer": "^2.0.2",
     "react": "^19.1.1",

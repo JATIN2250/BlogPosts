@@ -1,24 +1,26 @@
-// src/App.js (Fully Updated)
-
 import React, { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import BlogList from './components/BlogList';
 import BlogForm from './components/BlogForm';
 import ConfirmationModal from './components/ConfirmationModel';
-import Pagination from './components/Pagination'; // Import Pagination
-import ViewToggle from './components/ViewToggle'; // Import ViewToggle
+import Pagination from './components/Pagination';
+import ViewToggle from './components/ViewToggle';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 
 const POSTS_PER_PAGE = 6;
 
 function App() {
   const [blogs, setBlogs] = useState([]);
-  const [isFormVisible, setIsFormVisible] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
   const [deletingBlogId, setDeletingBlogId] = useState(null);
-
-  // New states for pagination and view
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('grid');
+  const [isRegisterPageVisible, setIsRegisterPageVisible] = useState(false);
+  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isBlogFormVisible, setIsBlogFormVisible] = useState(false);
+  const [isLoginPageVisible, setIsLoginPageVisible] = useState(false);
 
   const fetchBlogs = useCallback(async () => {
     try {
@@ -34,21 +36,70 @@ function App() {
     fetchBlogs();
   }, [fetchBlogs]);
 
-  // --- Form and Modal Handlers (same as before) ---
-  const showFormHandler = (blog = null) => {
-    setEditingBlog(blog);
-    setIsFormVisible(true);
+  // --- Handlers ---
+  const handleRegisterPage = ()=>{
+    setIsLoginPageVisible(false);
+    setIsRegisterPageVisible(true);
   };
-  const hideFormHandler = () => {
-    setIsFormVisible(false);
+  const handleAddNewClick = () => {
+    if (isLoggedIn) {
+      setEditingBlog(null);
+      setIsBlogFormVisible(true);
+    } else {
+      setIsLoginPageVisible(true);
+    }
+  };
+
+  const handleEditClick = (blog) => {
+    if (isLoggedIn) {
+      setEditingBlog(blog);
+      setIsBlogFormVisible(true);
+    } else {
+      alert("Please log in to edit posts.");
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setIsLoginPageVisible(false);
+  };
+
+  
+  
+  const hideLoginPage = () => {
+    setIsLoginPageVisible(false);
+  };
+
+  const showRegisterPage = ()=>{
+    setIsLoginPageVisible(false);
+    setIsRegisterPageVisible(true);
+  }
+
+  const hideRegisterPage = ()=>{
+    setIsRegisterPageVisible(false);
+  
+  }
+
+  const hideBlogForm = () => {
+    setIsBlogFormVisible(false);
     setEditingBlog(null);
   };
+
   const blogSavedHandler = () => {
-    hideFormHandler();
+    hideBlogForm();
     fetchBlogs();
   };
-  const showDeleteModalHandler = (id) => setDeletingBlogId(id);
+
+  const showDeleteModalHandler = (id) => {
+     if (isLoggedIn) {
+       setDeletingBlogId(id);
+     } else {
+       alert("Please log in to delete posts.");
+     }
+  };
+
   const hideDeleteModalHandler = () => setDeletingBlogId(null);
+  
   const confirmDeleteHandler = async () => {
     try {
       await fetch(`http://localhost:5000/api/blogs/${deletingBlogId}`, { method: 'DELETE' });
@@ -61,25 +112,22 @@ function App() {
 
   // --- Pagination Logic ---
   const totalPages = Math.ceil(blogs.length / POSTS_PER_PAGE);
-  const indexOfLastPost = currentPage * POSTS_PER_PAGE;
-  const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
-  const currentPosts = blogs.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = blogs.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <Header onAddNew={() => showFormHandler()} />
+      <Header onAddNew={handleAddNewClick} />
+      
       <main className="container mx-auto p-4 pt-32">
-        {/* View Toggle Buttons */}
         <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
         
         <BlogList
-          blogs={currentPosts} // Pass only the blogs for the current page
-          onEdit={showFormHandler}
+          blogs={currentPosts}
+          onEdit={handleEditClick}
           onDelete={showDeleteModalHandler}
-          viewMode={viewMode} // Pass viewMode to BlogList
+          viewMode={viewMode}
         />
 
-        {/* Pagination Buttons */}
         {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
@@ -89,11 +137,31 @@ function App() {
         )}
       </main>
 
-      {isFormVisible && (
-        <BlogForm onBlogAdded={blogSavedHandler} onClose={hideFormHandler} existingBlog={editingBlog} />
+      {isBlogFormVisible && (
+        <BlogForm
+          onBlogAdded={blogSavedHandler}
+          onClose={hideBlogForm}
+          existingBlog={editingBlog}
+        />
+      )}
+
+      {isLoginPageVisible && (
+        <LoginPage 
+          onLoginSuccess={handleLoginSuccess} 
+          onClose={hideLoginPage}
+          onNavigateToRegister = {showRegisterPage}
+          
+        />
+      )}
+      {isRegisterPageVisible && (
+        <RegisterPage onClose={hideRegisterPage}/>
       )}
       {deletingBlogId && (
-        <ConfirmationModal message="Are you sure you want to delete this blog post?" onConfirm={confirmDeleteHandler} onCancel={hideDeleteModalHandler} />
+        <ConfirmationModal 
+            message="Are you sure you want to delete this blog post?" 
+            onConfirm={confirmDeleteHandler} 
+            onCancel={hideDeleteModalHandler} 
+        />
       )}
     </div>
   );
