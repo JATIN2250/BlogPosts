@@ -7,17 +7,33 @@ const LoginPage = ({ onLoginSuccess, onClose, onNavigateToRegister }) => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (email === "jatintulswani1@gmail.com" && password === "J@tin1234") {
-      onLoginSuccess();
-    } else {
-      setError("Invalid email or password. Please try again.");
-    }
-  };
+    try{
+      const response = await fetch('http://localhost:5000/api/users/login', {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+        },
+        body:JSON.stringify({email,password}),
+      });
 
+      const data = await response.json();
+
+      if(!response.ok){
+        throw new Error(data.msg || 'Login Failed');
+      }
+
+      localStorage.setItem('token',data.token);
+
+      onLoginSuccess();
+    }
+    catch (err){
+      setError(err.message);
+    }
+  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="relative bg-white p-8 rounded-xl shadow-lg w-full max-w-md">

@@ -22,6 +22,13 @@ function App() {
   const [isBlogFormVisible, setIsBlogFormVisible] = useState(false);
   const [isLoginPageVisible, setIsLoginPageVisible] = useState(false);
 
+  useEffect(() =>{
+    const token = localStorage.getItem('token');
+    if(token){
+      setIsLoggedIn(true);
+    }
+  },[]);
+
   const fetchBlogs = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:5000/api/blogs');
@@ -37,6 +44,10 @@ function App() {
   }, [fetchBlogs]);
 
   // --- Handlers ---
+  const handleLogout = ()=>{
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+  }
   const handleRegisterPage = ()=>{
     setIsLoginPageVisible(false);
     setIsRegisterPageVisible(true);
@@ -116,7 +127,9 @@ function App() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <Header onAddNew={handleAddNewClick} />
+      <Header onAddNew={handleAddNewClick}
+      isLoggedIn={isLoggedIn}
+      onLogout={handleLogout} />
       
       <main className="container mx-auto p-4 pt-32">
         <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
