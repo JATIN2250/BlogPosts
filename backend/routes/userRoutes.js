@@ -67,7 +67,7 @@ router.post('/login', async (req, res) => {
         jwt.sign(
             payload,
             process.env.JW_SECRET,
-            { expiresIn: '1h' }, // Token will be valid for 1 hour
+            { expiresIn: '1h' },
             (err, token) => {
                 if (err) throw err;
                 res.json({ token });
@@ -82,7 +82,7 @@ router.post('/login', async (req, res) => {
 
 // ## GET /api/users/auth
 // Gets the logged-in user's data using the token from the header.
-router.get('/auth', auth, async (req, res) => {
+router.get('/auth', auth,async (req, res) => {
     try {
         // The 'auth' middleware verifies the token and adds the user's ID to req.user
         const user = await pool.query('SELECT user_id, username, email FROM userInfo WHERE user_id = $1', [

@@ -1,7 +1,8 @@
 import React from 'react';
 import Card from './card';
 
-const BlogList = ({ blogs, onEdit, onDelete, viewMode, currentUserId }) => {
+// 1. Receive 'isLoggedIn' as a prop in the function signature.
+const BlogList = ({ blogs, onEdit, onDelete, viewMode, currentUserId, isLoggedIn }) => {
   return (
     <div className="mt-8">
       {blogs.length === 0 ? (
@@ -13,13 +14,13 @@ const BlogList = ({ blogs, onEdit, onDelete, viewMode, currentUserId }) => {
           {blogs.map((blog) => (
             <Card
               key={blog.id}
-              // This is the fix: Pass the entire blog object as a single prop
               blog={blog} 
-              // Pass the other necessary props
               onEdit={onEdit}
               onDelete={onDelete}
               viewMode={viewMode}
               currentUserId={currentUserId}
+              // 2. Pass the 'isLoggedIn' prop down to each Card component.
+              isLoggedIn={isLoggedIn} 
             />
           ))}
         </div>

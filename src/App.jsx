@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Header from './components/Header';
-import BlogList from './components/BlogList';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// Import Pages and Components
+import HomePage from './components/HomePage';
+import SinglePostPage from './components/SinglePost';
 import BlogForm from './components/BlogForm';
 import ConfirmationModal from './components/ConfirmationModel';
-import Pagination from './components/Pagination';
-import ViewToggle from './components/ViewToggle';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
-import PostFilterToggle from './components/PostFilterToggle';
- // Import the new component
-
-const POSTS_PER_PAGE = 6;
 
 function App() {
   // State for data and UI
@@ -27,23 +24,18 @@ function App() {
 
   // State for Authentication and User Data
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // Holds logged-in user's details (id, username)
-  const [postFilter, setPostFilter] = useState('all'); // 'all' or 'mine'
+  const [currentUser, setCurrentUser] = useState(null);
+  const [postFilter, setPostFilter] = useState('all');
 
   // --- DATA FETCHING ---
-
-  // Fetches all blog posts from the server
   const fetchBlogs = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:5000/api/blogs');
       const data = await response.json();
       setBlogs(data);
-    } catch (error) {
-      console.error('Error fetching blogs:', error);
-    }
+    } catch (error) { console.error('Error fetching blogs:', error); }
   }, []);
 
-  // Fetches the currently logged-in user's data using the token
   const fetchCurrentUser = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -52,7 +44,6 @@ function App() {
           headers: { 'x-auth-token': token },
         });
         if (!response.ok) throw new Error("Token invalid");
-        
         const userData = await response.json();
         setCurrentUser(userData);
         setIsLoggedIn(true);
@@ -65,16 +56,14 @@ function App() {
     }
   }, []);
   
-  // Initial data fetch on component mount
   useEffect(() => {
     fetchBlogs();
     fetchCurrentUser();
   }, [fetchBlogs, fetchCurrentUser]);
 
   // --- HANDLERS ---
-
   const handleLoginSuccess = () => {
-    fetchCurrentUser(); // Fetch user data after a successful login
+    fetchCurrentUser();
     setIsLoginPageVisible(false);
   };
   
@@ -83,7 +72,7 @@ function App() {
     setIsLoggedIn(false);
     setCurrentUser(null);
     setPostFilter('all');
-    alert('Logged out successfully') // Reset filter on logout
+    alert(`Logged out successfully.`)
   };
 
   const handleAddNewClick = () => {
@@ -103,7 +92,7 @@ function App() {
   const blogSavedHandler = () => {
     setIsBlogFormVisible(false);
     setEditingBlog(null);
-    fetchBlogs(); // Refresh blog list
+    fetchBlogs();
   };
   
   const confirmDeleteHandler = async () => {
@@ -114,97 +103,60 @@ function App() {
         headers: { 'x-auth-token': token },
       });
       setDeletingBlogId(null);
-      fetchBlogs(); // Refresh blog list
-    } catch (error) {
-      console.error('Failed to delete blog:', error);
-    }
+      fetchBlogs();
+    } catch (error) { console.error('Failed to delete blog:', error); }
   };
 
-  // --- FILTERING AND PAGINATION LOGIC ---
-
-  // Filter blogs based on the "All" / "Mine" toggle
-  const filteredBlogs = blogs.filter(blog => {
-    if (postFilter === 'mine') {
-      return currentUser && blog.user_id === currentUser.user_id;
-    }
-    return true; // For 'all', return every blog
-  });
-
-  // Apply pagination to the filtered list
-  const totalPages = Math.ceil(filteredBlogs.length / POSTS_PER_PAGE);
-  const currentPosts = filteredBlogs.slice(
-    (currentPage - 1) * POSTS_PER_PAGE,
-    currentPage * POSTS_PER_PAGE
-  );
-
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <Header 
-        onAddNew={handleAddNewClick} 
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-      />
-      
-      <main className="container mx-auto p-4 pt-32">
-        <div className="flex justify-between items-center mb-6">
-          {isLoggedIn ? (
-            <PostFilterToggle filter={postFilter} setFilter={setPostFilter} />
-          ) : (
-            <div /> // Placeholder to keep layout consistent
-          )}
-          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-        </div>
-        
-        <BlogList
-          blogs={currentPosts}
-          onEdit={handleEditClick}
-          onDelete={(id) => setDeletingBlogId(id)}
-          viewMode={viewMode}
-          currentUserId={currentUser ? currentUser.user_id : null}
-        />
+    <BrowserRouter>
+      <div className="bg-gray-50 min-h-screen">
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <HomePage 
+                blogs={blogs}
+                currentUser={currentUser}
+                isLoggedIn={isLoggedIn}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                postFilter={postFilter}
+                setPostFilter={setPostFilter}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                handleAddNewClick={handleAddNewClick}
+                handleLogout={handleLogout}
+                handleEditClick={handleEditClick}
+                showDeleteModalHandler={(id) => setDeletingBlogId(id)}
+              />
+            } 
+          />
+          <Route path="/blog/:id" element={<SinglePostPage />} />
+        </Routes>
 
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
+        {/* --- MODALS AND FORMS --- */}
+        {isBlogFormVisible && (
+          <BlogForm onBlogAdded={blogSavedHandler} onClose={() => setIsBlogFormVisible(false)} existingBlog={editingBlog} />
+        )}
+        {isLoginPageVisible && (
+          <LoginPage 
+            onLoginSuccess={handleLoginSuccess} 
+            onClose={() => setIsLoginPageVisible(false)}
+            onNavigateToRegister={() => { setIsLoginPageVisible(false); setIsRegisterPageVisible(true); }}
           />
         )}
-      </main>
-
-      {/* --- MODALS AND FORMS --- */}
-
-      {isBlogFormVisible && (
-        <BlogForm
-          onBlogAdded={blogSavedHandler}
-          onClose={() => setIsBlogFormVisible(false)}
-          existingBlog={editingBlog}
-        />
-      )}
-
-      {isLoginPageVisible && (
-        <LoginPage 
-          onLoginSuccess={handleLoginSuccess} 
-          onClose={() => setIsLoginPageVisible(false)}
-          onNavigateToRegister={() => {
-            setIsLoginPageVisible(false);
-            setIsRegisterPageVisible(true);
-          }}
-        />
-      )}
-      
-      {isRegisterPageVisible && (
-        <RegisterPage onClose={() => setIsRegisterPageVisible(false)} />
-      )}
-      
-      {deletingBlogId && (
-        <ConfirmationModal 
+        {isRegisterPageVisible && (
+          <RegisterPage onClose={() => setIsRegisterPageVisible(false)} />
+        )}
+        {deletingBlogId && (
+          <ConfirmationModal 
             message="Are you sure you want to delete this blog post?" 
             onConfirm={confirmDeleteHandler} 
             onCancel={() => setDeletingBlogId(null)} 
-        />
-      )}
-    </div>
+          />
+        )}
+      </div>
+    </BrowserRouter>
   );
 }
 

@@ -124,4 +124,27 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+router.get('/:id', async (req,res)=>{
+  try{
+    const { id } = req.params;
+    const blog = await pool.query(
+      `SELECT ub.id,ub.title,ub.description,ub.image_url,ui.username
+      FROM userBlog ub 
+      JOIN userInfo ui ON ub.user_id = ui.user_id
+      WHERE ub.id = $1`,
+      [id]
+    );
+
+    if(blog.rows.length===0){
+      return res.status(404).json({msg:'Blog not found'});
+    }
+
+    res.json(blog.rows[0]);
+  }
+  catch (err){
+    console.error(err.message);
+    res.status(500).json({msg:'Server Error'});
+  }
+});
+
 module.exports = router;
