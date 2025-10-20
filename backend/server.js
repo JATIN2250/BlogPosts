@@ -8,7 +8,11 @@ const cors = require("cors"); // <-- 1. CORS KO IMPORT KAREIN
 const blogRoutes = require("./routes/blogRoutes");
 const userRoutes = require('./routes/userRoutes');
 // Middleware
-app.use(cors()); // <-- 2. SABSE PEHLE CORS MIDDLEWARE USE KAREIN
+app.use(cors({
+  origin: ["http://blogocean.publicvm.com"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+})); // <-- 2. SABSE PEHLE CORS MIDDLEWARE USE KAREIN
 app.use(express.json()); // parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // parse URL-encoded bodies
 

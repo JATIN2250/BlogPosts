@@ -12,7 +12,7 @@ const BlogForm = ({ onBlogAdded, onClose, existingBlog }) => {
       setTitle(existingBlog.title);
       setDescription(existingBlog.description);
       if (existingBlog.image_url) {
-        setImagePreview(`http://localhost:5000${existingBlog.image_url}`);
+        setImagePreview(`http://backend.blogocean.publicvm.com${existingBlog.image_url}`);
       }
     }
   }, [existingBlog]);
@@ -35,7 +35,7 @@ const BlogForm = ({ onBlogAdded, onClose, existingBlog }) => {
     }
 
     const isEditing = !!existingBlog;
-    const url = isEditing ? `http://localhost:5000/api/blogs/${existingBlog.id}` : 'http://localhost:5000/api/blogs';
+    const url = isEditing ? `http://backend.blogocean.publicvm.com/api/blogs/${existingBlog.id}` : 'http://backend.blogocean.publicvm.com/api/blogs';
     const method = isEditing ? 'PUT' : 'POST';
 
     const token = localStorage.getItem('token');

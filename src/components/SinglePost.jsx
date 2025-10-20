@@ -11,7 +11,7 @@ const SinglePostPage = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/blogs/${id}`);
+        const response = await fetch(`http://backend.blogocean.publicvm.com/api/blogs/${id}`);
 
         if (!response.ok) {
           // Updated error message
@@ -38,7 +38,7 @@ const SinglePostPage = () => {
       <Link to="/" className="text-blue-500 hover:underline mb-6 inline-block">&larr; Back to all posts</Link>
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {blog.image_url && <img src={`http://localhost:5000${blog.image_url}`} alt={blog.title} className='w-full h-96 object-cover' />}
+        {blog.image_url && <img src={`http://backend.blogocean.publicvm.com${blog.image_url}`} alt={blog.title} className='w-full h-96 object-cover' />}
         <div className="p-8">
           <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
           <p className="text-sm text-gray-500 mb-6">By <span className="font-semibold">{blog.username}</span></p>

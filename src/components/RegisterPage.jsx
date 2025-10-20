@@ -19,7 +19,7 @@ const RegisterPage = ({ onClose }) => {
 
     try {
       // Send a POST request to your new backend endpoint
-      const response = await fetch('http://localhost:5000/api/users/register', {
+      const response = await fetch('http://backend.blogocean.publicvm.com/api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

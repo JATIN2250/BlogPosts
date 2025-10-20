@@ -48,7 +48,7 @@ const Card = ({ blog, onEdit, onDelete, currentUserId, viewMode = 'grid', isLogg
         </div>
       )}
       
-      {blog.image_url && <img className={imageClasses} src={`http://localhost:5000${blog.image_url}`} alt={blog.title} />}
+      {blog.image_url && <img className={imageClasses} src={`http://backend.blogocean.publicvm.com${blog.image_url}`} alt={blog.title} />}
 
       <div className={contentClasses}>
         <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">{blog.title}</h2>

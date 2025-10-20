@@ -33,14 +33,13 @@ services:
       - ./backend:/app
     command: ["node", "server.js"]
 
-  frontend:
-    build: ./
-    container_name: frontend_app
-    restart: always
-    depends_on:
-      - backend
-    ports:
-      - "5173:5173"
+frontend:
+  build: ./frontend
+  container_name: frontend_app
+  restart: always
+  ports:
+    - "5173:80"
+
 
 volumes:
   pgdata:
