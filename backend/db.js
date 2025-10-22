@@ -28,7 +28,7 @@ async function initDB(retries = 10, delay = 5000) {
           user_id SERIAL PRIMARY KEY,
           username TEXT NOT NULL,
           email TEXT UNIQUE NOT NULL,
-          userpass TEXT NOT NULL,
+          userpass TEXT NOT NULL
           
         );
       `);
@@ -40,7 +40,7 @@ async function initDB(retries = 10, delay = 5000) {
           title TEXT NOT NULL,
           description TEXT NOT NULL,
           image_url TEXT,
-          user_id INTEGER REFERENCES userInfo(user_id) ON DELETE CASCADE,
+          user_id INTEGER REFERENCES userInfo(user_id) ON DELETE CASCADE
           
         );
       `);

@@ -9,10 +9,14 @@ const blogRoutes = require("./routes/blogRoutes");
 const userRoutes = require('./routes/userRoutes');
 // Middleware
 app.use(cors({
-  origin: ["http://blogocean.publicvm.com"],
+  origin: [
+    "https://blogocean.publicvm.com",  // ✅ Allow HTTPS frontend
+    "http://blogocean.publicvm.com"    // (optional, if you ever test locally)
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
-})); // <-- 2. SABSE PEHLE CORS MIDDLEWARE USE KAREIN
+}));
+ // <-- 2. SABSE PEHLE CORS MIDDLEWARE USE KAREIN
 app.use(express.json()); // parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // parse URL-encoded bodies
 

@@ -12,7 +12,7 @@ const LoginPage = ({ onLoginSuccess, onClose, onNavigateToRegister }) => {
     setError("");
 
     try{
-      const response = await fetch('http://backend.blogocean.publicvm.com/api/users/login', {
+      const response = await fetch('https://backend.blogocean.publicvm.com/api/users/login', {
         method:'POST',
         headers:{
           'Content-Type':'application/json',

@@ -30,7 +30,7 @@ function App() {
   // --- DATA FETCHING ---
   const fetchBlogs = useCallback(async () => {
     try {
-      const response = await fetch('http://backend.blogocean.publicvm.com/api/blogs');
+      const response = await fetch('https://backend.blogocean.publicvm.com/api/blogs');
       const data = await response.json();
       setBlogs(data);
     } catch (error) { console.error('Error fetching blogs:', error); }
@@ -40,7 +40,7 @@ function App() {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await fetch('http://backend.blogocean.publicvm.com/api/users/auth', {
+        const response = await fetch('https://backend.blogocean.publicvm.com/api/users/auth', {
           headers: { 'x-auth-token': token },
         });
         if (!response.ok) throw new Error("Token invalid");
@@ -98,7 +98,7 @@ function App() {
   const confirmDeleteHandler = async () => {
     const token = localStorage.getItem('token');
     try {
-      await fetch(`http://backend.blogocean.publicvm.com/api/blogs/${deletingBlogId}`, {
+      await fetch(`https://backend.blogocean.publicvm.com/api/blogs/${deletingBlogId}`, {
         method: 'DELETE',
         headers: { 'x-auth-token': token },
       });

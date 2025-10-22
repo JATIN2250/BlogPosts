@@ -34,7 +34,7 @@ services:
     command: ["node", "server.js"]
 
 frontend:
-  build: ./frontend
+  build: ./
   container_name: frontend_app
   restart: always
   ports:
